@@ -443,6 +443,10 @@ PYBIND11_MODULE(stella_vslam, m){
         // Python GIL pervents us from parallelizing SLAM and the viewer using threads. We allow parallelization by adding a call guard
         .def("run", &pangolin_viewer::viewer::run, py::call_guard<py::gil_scoped_release>())
         .def("request_terminate", &pangolin_viewer::viewer::request_terminate)
+
+        // This is not a function present in the original stella_vslam system
+        // .def("take_screenshot", &pangolin_viewer::viewer::take_screenshot, py::arg("filename"))
+        .def("take_screenshot", &pangolin_viewer::viewer::take_screenshot, py::arg("filename"))
         
         // Not recommended, but useful to test stuff and avoid the GIL
         .def("run_in_detached_thread", [](pangolin_viewer::viewer &self){                
