@@ -364,10 +364,22 @@ using namespace stella_vslam;
 PYBIND11_MODULE(stella_vslam, m){
     NDArrayConverter::init_numpy();
 
+    py::class_<stella_vslam::camera::image_bounds>(m, "camera::image_bounds")
+    .def_readonly("min_x_", &stella_vslam::camera::image_bounds::min_x_)
+    .def_readonly("max_x_", &stella_vslam::camera::image_bounds::max_x_)
+    .def_readonly("min_y_", &stella_vslam::camera::image_bounds::min_y_)
+    .def_readonly("max_y_", &stella_vslam::camera::image_bounds::max_y_)
+    ;
+
+    py::class_<stella_vslam::camera::base, std::shared_ptr<stella_vslam::camera::base>>(m, "camera::base")
+    .def_readonly("img_bounds_", &stella_vslam::camera::base::img_bounds_)    
+    ;
+
     py::class_<config, std::shared_ptr<config>>(m, "config")
         .def(py::init<const std::string&>(), py::arg("config_file_path"))
         .def(py::init<const YAML::Node&, const std::string&>(), py::arg("yaml_node"), py::arg("config_file_path") = "")
-        .def_readonly("yaml_node_", &config::yaml_node_);
+        .def_readonly("yaml_node_", &config::yaml_node_)
+        .def_readonly("camera_", &config::camera_);
 
     py::class_<stella_vslam::system>(m, "system")
         // Init & finish

@@ -79,4 +79,5 @@ slamThreadInstance.start()
 VIEWER.run()
 slamThreadInstance.join()
 
+SLAM.save_map_database(args.map_db)
 SLAM.shutdown()
