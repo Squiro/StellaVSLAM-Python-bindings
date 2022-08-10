@@ -25,3 +25,4 @@ Para compilar, ejecutar el makefile usando el comando "make".
 Probar de la siguiente forma:
 
 python3 test2.py -c ./aist_entrance_hall_1/config.yaml -m ./aist_entrance_hall_1/video.mp4 -v orb_vocab.fbow
+python3 test3.py -c ./aist_entrance_hall_1/config.yaml -m ./aist_entrance_hall_1/video.mp4 -v orb_vocab.fbow

@@ -372,7 +372,8 @@ PYBIND11_MODULE(stella_vslam, m){
     ;
 
     py::class_<stella_vslam::camera::base, std::shared_ptr<stella_vslam::camera::base>>(m, "camera::base")
-    .def_readonly("img_bounds_", &stella_vslam::camera::base::img_bounds_)    
+    .def_readonly("img_bounds_", &stella_vslam::camera::base::img_bounds_) 
+    .def_readonly("focal_x_baseline_", &stella_vslam::camera::base::focal_x_baseline_)    
     ;
 
     py::class_<config, std::shared_ptr<config>>(m, "config")
@@ -387,29 +388,47 @@ PYBIND11_MODULE(stella_vslam, m){
         .def("startup", &system::startup, py::arg("need_initialize") = true)
         .def("shutdown", &system::shutdown)
         
-        .def("feed_monocular_frame", [](stella_vslam::system &self, const cv::Mat &img, const double timestamp, const cv::Mat& mask = cv::Mat{}) {
+        .def("feed_monocular_frame", [](stella_vslam::system &self, const cv::Mat &img, const double timestamp = -1, const cv::Mat& mask = cv::Mat{}) {
+                double t_stamp = timestamp;
+                if (timestamp == -1)
+                {
+                    std::chrono::system_clock::time_point start_time_system = std::chrono::system_clock::now();
+                    t_stamp = std::chrono::duration_cast<std::chrono::duration<double>>(start_time_system.time_since_epoch()).count();
+                }
                 py::gil_scoped_release release; 
-                std::shared_ptr<Mat44_t> matrix = self.feed_monocular_frame(img, timestamp, mask); 
+                std::shared_ptr<Mat44_t> matrix = self.feed_monocular_frame(img, t_stamp, mask); 
                 py::gil_scoped_acquire acquire;
                 return ptr2pose(matrix);
             }, 
-            py::arg("img"), py::arg("timestamp"), py::arg("mask") = cv::Mat{})
+            py::arg("img"), py::arg("timestamp") = -1, py::arg("mask") = cv::Mat{})
         
-        .def("feed_stereo_frame", [](stella_vslam::system &self, const cv::Mat &left_img, const cv::Mat &right_img, const double timestamp, const cv::Mat& mask = cv::Mat{}) { 
+        .def("feed_stereo_frame", [](stella_vslam::system &self, const cv::Mat &left_img, const cv::Mat &right_img, const double timestamp = -1, const cv::Mat& mask = cv::Mat{}) { 
+                double t_stamp = timestamp;
+                if (timestamp == -1)
+                {
+                    std::chrono::system_clock::time_point start_time_system = std::chrono::system_clock::now();
+                    t_stamp = std::chrono::duration_cast<std::chrono::duration<double>>(start_time_system.time_since_epoch()).count();
+                }
                 py::gil_scoped_release release;
-                std::shared_ptr<Mat44_t> matrix = self.feed_stereo_frame(left_img, right_img, timestamp, mask); 
+                std::shared_ptr<Mat44_t> matrix = self.feed_stereo_frame(left_img, right_img, t_stamp, mask); 
                 py::gil_scoped_acquire acquire;
                 return ptr2pose(matrix);
             }, 
-            py::arg("left_img"), py::arg("right_img"), py::arg("timestamp"), py::arg("mask") = cv::Mat{})
+            py::arg("left_img"), py::arg("right_img"), py::arg("timestamp") = -1, py::arg("mask") = cv::Mat{})
         
-        .def("feed_RGBD_frame", [](stella_vslam::system &self, const cv::Mat &rgb_img, const cv::Mat &depthmap, const double timestamp, const cv::Mat& mask = cv::Mat{}) { 
+        .def("feed_RGBD_frame", [](stella_vslam::system &self, const cv::Mat &rgb_img, const cv::Mat &depthmap, const double timestamp = -1, const cv::Mat& mask = cv::Mat{}) { 
+                double t_stamp = timestamp;
+                if (timestamp == -1)
+                {
+                    std::chrono::system_clock::time_point start_time_system = std::chrono::system_clock::now();
+                    t_stamp = std::chrono::duration_cast<std::chrono::duration<double>>(start_time_system.time_since_epoch()).count();
+                }
                 py::gil_scoped_release release;
-                std::shared_ptr<Mat44_t> matrix = self.feed_RGBD_frame(rgb_img, depthmap, timestamp, mask); 
+                std::shared_ptr<Mat44_t> matrix = self.feed_RGBD_frame(rgb_img, depthmap, t_stamp, mask); 
                 py::gil_scoped_acquire acquire;
                 return ptr2pose(matrix);
             }, 
-            py::arg("rgb_img"), py::arg("depthmap"), py::arg("timestamp"), py::arg("mask") = cv::Mat{})
+            py::arg("rgb_img"), py::arg("depthmap"), py::arg("timestamp") = -1, py::arg("mask") = cv::Mat{})
 
         // Map save & load
         .def("load_map_database", &system::load_map_database, py::arg("path"))
