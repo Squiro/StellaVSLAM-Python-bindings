@@ -475,9 +475,23 @@ PYBIND11_MODULE(stella_vslam, m){
         .def("run", &pangolin_viewer::viewer::run, py::call_guard<py::gil_scoped_release>())
         .def("request_terminate", &pangolin_viewer::viewer::request_terminate)
 
-        // This is not a function present in the original stella_vslam system
-        // .def("take_screenshot", &pangolin_viewer::viewer::take_screenshot, py::arg("filename"))
+        // Code not part of original stella_vslam system
         .def("take_screenshot", &pangolin_viewer::viewer::take_screenshot, py::arg("filename"))
+        .def("load_trajectory_points", [](pangolin_viewer::viewer &self, py::list &points) {            
+            std::vector<float> serialized_points;            
+            for (py::handle p : points)
+            {                
+                py::list pos_w = p.attr("get_pos_w")();
+
+                for (py::handle coord : pos_w)
+                {
+                    serialized_points.push_back(coord.cast<float>());
+                }                      
+                
+            }
+            self.load_trajectory_points(serialized_points);
+        }, py::arg("points"))
+        // End of code not part of original stella_vslam system
         
         // Not recommended, but useful to test stuff and avoid the GIL
         .def("run_in_detached_thread", [](pangolin_viewer::viewer &self){                
